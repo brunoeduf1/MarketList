@@ -57,6 +57,44 @@ class _ShoppingListState extends State<ShoppingList> {
     });
   }
 
+  void _editItem(int index) async {
+    String editedName = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String newName = _items[index].name;
+        return AlertDialog(
+          title: Text('Editar item'),
+          content: TextField(
+            controller: TextEditingController(text: newName),
+            onChanged: (value) {
+              newName = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, newName);
+              },
+              child: Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (editedName != null && editedName.isNotEmpty) {
+      setState(() {
+        _items[index] = ShoppingItem(editedName, false);
+      });
+    }
+  }
+
   void _showAddItemDialog() {
     String itemName = '';
 
@@ -117,6 +155,12 @@ class _ShoppingListState extends State<ShoppingList> {
                 color: item.isBought ? Colors.red : null,
                 decoration: item.isBought ? TextDecoration.lineThrough : null,
               ),
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                _editItem(index);
+              },
             ),
             onTap: () => _toggleItemBoughtStatus(index),
           );
