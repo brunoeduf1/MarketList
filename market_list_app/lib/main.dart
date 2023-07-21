@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class ShoppingItem {
@@ -11,6 +11,8 @@ class ShoppingItem {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,8 +27,8 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
-  List<ShoppingItem> _items = [];
-  List<ShoppingItem> _selectedItems = [];
+  final List<ShoppingItem> _items = [];
+  final List<ShoppingItem> _selectedItems = [];
 
   void _toggleItemBoughtStatus(int index) {
     setState(() {
@@ -63,7 +65,7 @@ class _ShoppingListState extends State<ShoppingList> {
       builder: (BuildContext context) {
         String newName = _items[index].name;
         return AlertDialog(
-          title: Text('Editar item'),
+          title: const Text('Item edit'),
           content: TextField(
             controller: TextEditingController(text: newName),
             onChanged: (value) {
@@ -75,20 +77,20 @@ class _ShoppingListState extends State<ShoppingList> {
               onPressed: () {
                 Navigator.pop(context, newName);
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );
       },
     );
 
-    if (editedName != null && editedName.isNotEmpty) {
+    if (editedName.isNotEmpty) {
       setState(() {
         _items[index] = ShoppingItem(editedName, false);
       });
@@ -102,19 +104,19 @@ class _ShoppingListState extends State<ShoppingList> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add Item to List'),
+          title: const Text('Add Item to List'),
           content: TextField(
             onChanged: (value) {
               itemName = value;
             },
-            decoration: InputDecoration(labelText: 'Item Name'),
+            decoration: const InputDecoration(labelText: 'Item Name'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -123,7 +125,7 @@ class _ShoppingListState extends State<ShoppingList> {
                 }
                 Navigator.of(context).pop();
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -135,11 +137,32 @@ class _ShoppingListState extends State<ShoppingList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shopping List'),
+        title: const Text('Shopping List'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'my_lists') {
+                // Ação para a opção "My lists"
+              } else if (value == 'config') {
+                // Ação para a opção "Config"
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'my_lists',
+                child: Text('Saved lists'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'config',
+                child: Text('Settings'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: ListView.separated(
         itemCount: _items.length,
-        separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey),
+        separatorBuilder: (context, index) => const Divider(height: 1, color: Colors.grey),
         itemBuilder: (context, index) {
           final item = _items[index];
           final isSelected = _selectedItems.contains(item);
@@ -157,7 +180,7 @@ class _ShoppingListState extends State<ShoppingList> {
               ),
             ),
             trailing: IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: () {
                 _editItem(index);
               },
@@ -172,13 +195,13 @@ class _ShoppingListState extends State<ShoppingList> {
         children: [
           FloatingActionButton(
             onPressed: _showAddItemDialog,
-            child: Icon(Icons.add),
+            child: const Icon(Icons.add),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           FloatingActionButton(
             onPressed: _selectedItems.isNotEmpty ? _deleteSelectedItems : null,
-            child: Icon(Icons.delete),
             backgroundColor: _selectedItems.isNotEmpty ? Colors.red : Colors.grey,
+            child: const Icon(Icons.delete),
           ),
         ],
       ),
