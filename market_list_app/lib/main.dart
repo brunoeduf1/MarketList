@@ -5,7 +5,7 @@ void main() {
 }
 
 class ShoppingItem {
-  final String name;
+  String name;
   bool isBought;
   ShoppingItem(this.name, this.isBought);
 }
@@ -60,7 +60,8 @@ class _ShoppingListState extends State<ShoppingList> {
   }
 
   void _editItem(int index) async {
-    String editedName = await showDialog(
+    String editedName = '';
+    showDialog(
       context: context,
       builder: (BuildContext context) {
         String newName = _items[index].name;
@@ -75,13 +76,18 @@ class _ShoppingListState extends State<ShoppingList> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context, newName);
+                if (newName.isNotEmpty) {
+                  setState(() {
+                    _items[index].name = newName;
+                  });
+                }
+                Navigator.of(context).pop();
               },
               child: const Text('Save'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pop();
               },
               child: const Text('Cancel'),
             ),
@@ -114,18 +120,18 @@ class _ShoppingListState extends State<ShoppingList> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
                 if (itemName.isNotEmpty) {
                   _addItemToList(itemName);
                 }
                 Navigator.of(context).pop();
               },
               child: const Text('Add'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
             ),
           ],
         );
@@ -138,7 +144,7 @@ class _ShoppingListState extends State<ShoppingList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),
-        actions: [
+        /*actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'my_lists') {
@@ -158,7 +164,7 @@ class _ShoppingListState extends State<ShoppingList> {
               ),
             ],
           ),
-        ],
+        ],*/
       ),
       body: ListView.separated(
         itemCount: _items.length,
