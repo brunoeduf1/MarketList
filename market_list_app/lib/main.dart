@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp_share/whatsapp_share.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,13 +16,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: ShoppingList(),
     );
   }
 }
 
 class ShoppingList extends StatefulWidget {
+  const ShoppingList({super.key});
+
   @override
   _ShoppingListState createState() => _ShoppingListState();
 }
@@ -57,6 +60,21 @@ class _ShoppingListState extends State<ShoppingList> {
     setState(() {
       _items.add(ShoppingItem(itemName, false));
     });
+  }
+
+ Future<void> _isInstalled() async {
+    final val = await WhatsappShare.isInstalled(
+      package: Package.businessWhatsapp
+    );
+    print('Whatsapp Business is installed: $val');
+  }
+
+  Future<void> _share() async {
+    await WhatsappShare.share(
+      text: 'Whatsapp share text',
+      linkUrl: 'https://flutter.dev/',
+      phone: '911234567890',
+    );
   }
 
   void _editItem(int index) async {
@@ -202,6 +220,15 @@ class _ShoppingListState extends State<ShoppingList> {
           FloatingActionButton(
             onPressed: _showAddItemDialog,
             child: const Icon(Icons.add),
+          ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _share();
+              });
+              },
+            child: const Icon(Icons.share),
           ),
           const SizedBox(width: 10),
           FloatingActionButton(
