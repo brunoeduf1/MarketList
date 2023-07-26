@@ -1,7 +1,8 @@
+// ignore_for_file: depend_on_referenced_packages
 import 'package:flutter/material.dart';
 import 'package:whatsapp_share/whatsapp_share.dart';
 
-void main() {
+Future<void> main() async {
   runApp(const MyApp());
 }
 
@@ -30,6 +31,7 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
+
   final List<ShoppingItem> _items = [];
   final List<ShoppingItem> _selectedItems = [];
 
@@ -60,13 +62,6 @@ class _ShoppingListState extends State<ShoppingList> {
     setState(() {
       _items.add(ShoppingItem(itemName, false));
     });
-  }
-
- Future<void> _isInstalled() async {
-    final val = await WhatsappShare.isInstalled(
-      package: Package.businessWhatsapp
-    );
-    print('Whatsapp Business is installed: $val');
   }
 
   Future<void> _share() async {
@@ -162,27 +157,6 @@ class _ShoppingListState extends State<ShoppingList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),
-        /*actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'my_lists') {
-                // Ação para a opção "My lists"
-              } else if (value == 'config') {
-                // Ação para a opção "Config"
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'my_lists',
-                child: Text('Saved lists'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'config',
-                child: Text('Settings'),
-              ),
-            ],
-          ),
-        ],*/
       ),
       body: ListView.separated(
         itemCount: _items.length,
