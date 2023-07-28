@@ -39,6 +39,8 @@ dependencies:
   whatsapp: ^2.0.0
   flutter_document_picker: ^5.2.3
   path_provider: ^2.0.15
+  firebase_core: ^2.15.0
+  firebase_messaging: ^14.4.0
 
 dev_dependencies:
   flutter_test:

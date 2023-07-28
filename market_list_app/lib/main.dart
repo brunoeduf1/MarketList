@@ -1,9 +1,15 @@
 // ignore_for_file: depend_on_referenced_packages
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:market_list_app/firebase_options.dart';
 import 'package:whatsapp_share/whatsapp_share.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   runApp(const MyApp());
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+  String? token = await FirebaseMessaging.instance.getToken();
+  print(token);
 }
 
 class ShoppingItem {
@@ -31,6 +37,30 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
+
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      //_handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
+
+    if (message.notification != null) {
+      print('Message also contained a notification: ${message.notification}');
+    }
+  });
+  }
 
   final List<ShoppingItem> _items = [];
   final List<ShoppingItem> _selectedItems = [];
