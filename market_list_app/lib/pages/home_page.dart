@@ -1,7 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:whatsapp_share/whatsapp_share.dart';
-
 import '../firebase_message_provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -66,13 +64,13 @@ class _ShoppingListState extends State<HomePage> {
     });
   }
 
-  Future<void> _share() async {
+  /*Future<void> _share() async {
     await WhatsappShare.share(
       text: 'Whatsapp share text',
       linkUrl: 'https://flutter.dev/',
       phone: '911234567890',
     );
-  }
+  }*/
 
   void _editItem(int index) async {
     String editedName = '';
@@ -202,7 +200,7 @@ class _ShoppingListState extends State<HomePage> {
           FloatingActionButton(
             onPressed: () {
               setState(() {
-                _share();
+                //_share();
               });
               },
             child: const Icon(Icons.share),
