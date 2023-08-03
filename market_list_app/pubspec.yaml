@@ -41,6 +41,11 @@ dependencies:
   path_provider: ^2.0.15
   firebase_core: ^2.15.0
   firebase_messaging: ^14.4.0
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  overlay_support: ^1.0.0
+  firebase_analytics: ^10.4.4
+  flutter_local_notifications: ^9.2.0
 
 dev_dependencies:
   flutter_test:
