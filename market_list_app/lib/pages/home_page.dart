@@ -1,12 +1,14 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../firebase_message_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _ShoppingListState createState() => _ShoppingListState();
+  ShoppingListState createState() => ShoppingListState();
 }
 
 class ShoppingItem {
@@ -15,10 +17,10 @@ class ShoppingItem {
   ShoppingItem(this.name, this.isBought);
 }
 
-class _ShoppingListState extends State<HomePage> {
-
+class ShoppingListState extends State<HomePage>{
   final List<ShoppingItem> _items = [];
   final List<ShoppingItem> _selectedItems = [];
+  static String response = ""; 
 
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
@@ -26,13 +28,37 @@ class _ShoppingListState extends State<HomePage> {
   void initState() {
     super.initState();
     NotificationListenerProvider().getMessage(context);
-    print("dkfkdfkdjfdkfdfdfdfd");
     getToken();
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      if (message.data.isNotEmpty)
+      {
+        response = message.data['key1'];
+
+        if (kDebugMode) {
+          print('Got a message whilst in the foreground!');
+          print('Message data: ${message.data['key1']}');
+        }
+      }
+      if (message.notification != null) {
+        if (kDebugMode) {
+          print('Message also contained a notification: ${message.notification}');
+        }
+      }
+    });
+  }
+
+  void addItemToListFromPushNotification(RemoteMessage message) async
+  {
+    if (mounted) {
+      setState(() {
+        _items.add(ShoppingItem(message.data['key1'], false));
+      });
+    }
   }
 
   void getToken() async {
     final token = await _firebaseMessaging.getToken();
-    print("dlllllllllllllllll $token");
   }
 
   void _toggleItemBoughtStatus(int index) {
@@ -58,19 +84,11 @@ class _ShoppingListState extends State<HomePage> {
     });
   }
 
-  void _addItemToList(String itemName) {
+  void addItemToList(String itemName, ) {
     setState(() {
       _items.add(ShoppingItem(itemName, false));
     });
   }
-
-  /*Future<void> _share() async {
-    await WhatsappShare.share(
-      text: 'Whatsapp share text',
-      linkUrl: 'https://flutter.dev/',
-      phone: '911234567890',
-    );
-  }*/
 
   void _editItem(int index) async {
     String editedName = '';
@@ -134,7 +152,7 @@ class _ShoppingListState extends State<HomePage> {
             TextButton(
               onPressed: () {
                 if (itemName.isNotEmpty) {
-                  _addItemToList(itemName);
+                  addItemToList(itemName);
                 }
                 Navigator.of(context).pop();
               },
@@ -154,6 +172,13 @@ class _ShoppingListState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    bool? isAccepted = Provider.of<PushNotificationProvider>(context).isAccepted;
+    if(isAccepted)
+    {
+      addItemToList(response);
+    }
+      
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),
