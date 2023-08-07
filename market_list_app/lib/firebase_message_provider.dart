@@ -6,15 +6,15 @@ import 'package:provider/provider.dart';
 
 class PushNotificationProvider with ChangeNotifier {
   bool _isAccepted = false;
-
-  // Método para obter o resultado do clique do botão 'Aceitar'.
   bool get isAccepted => _isAccepted;
 
-  // Método para atualizar o estado do clique do botão 'Aceitar'.
   void acceptNotification(bool value) {
     _isAccepted = value;
     notifyListeners();
-    _isAccepted = false; // Notifica os ouvintes (widgets que estão escutando as mudanças).
+  }
+
+  void clearNotification() {
+    _isAccepted = false;
   }
 }
 
@@ -40,13 +40,11 @@ class NotificationListenerProvider {
                 onPressed: () {
                   Provider.of<PushNotificationProvider>(context, listen: false).acceptNotification(true);
                   Navigator.of(context).pop();
-                  //Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                 },
                 child: const Text('Add'),
               ),
               TextButton(
-                onPressed: () async {
-                  Provider.of<PushNotificationProvider>(context, listen: false).acceptNotification(false);         
+                onPressed: () {   
                   Navigator.of(context).pop();  
                 },
                 child: const Text('Cancel'),

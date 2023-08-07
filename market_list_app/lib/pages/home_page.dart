@@ -177,6 +177,7 @@ class ShoppingListState extends State<HomePage>{
     if(isAccepted)
     {
       addItemToList(response);
+      Provider.of<PushNotificationProvider>(context, listen: false).clearNotification();
     }
       
     return Scaffold(
