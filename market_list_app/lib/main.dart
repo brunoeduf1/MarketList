@@ -6,14 +6,17 @@ import 'package:market_list_app/firebase_message_provider.dart';
 import 'package:market_list_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:market_list_app/pages/home_page.dart';
+import 'package:market_list_app/pages/notification_screen.dart';
 import 'package:provider/provider.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
+  await FirebaseApi().initNotifications();
+    
   String? token = await FirebaseMessaging.instance.getToken();
   if (kDebugMode) {
     print(token);
@@ -26,21 +29,19 @@ Future<void> main() async {
   );
 }
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  
-  if (kDebugMode) {
-    print("Handling a background message: ${message.messageId}");
-  }
-}
-
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: HomePage(),
+    return MaterialApp(
+      title: 'Push Notification',
+      navigatorKey: navigatorKey,
+      home: const HomePage(),
+      routes: {
+        NotificationScreen.route: (context) => const NotificationScreen(),
+        HomePage.route: (context) => const HomePage(),
+      },
     );
   }
 }

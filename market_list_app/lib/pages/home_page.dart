@@ -1,11 +1,11 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../firebase_message_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
+  static const route = '/home-screen';
 
   @override
   ShoppingListState createState() => ShoppingListState();
@@ -22,7 +22,7 @@ class ShoppingListState extends State<HomePage>{
   final List<ShoppingItem> _selectedItems = [];
   static String response = ""; 
 
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   @override
   void initState() {
@@ -34,16 +34,6 @@ class ShoppingListState extends State<HomePage>{
       if (message.data.isNotEmpty)
       {
         response = message.data['key1'];
-
-        if (kDebugMode) {
-          print('Got a message whilst in the foreground!');
-          print('Message data: ${message.data['key1']}');
-        }
-      }
-      if (message.notification != null) {
-        if (kDebugMode) {
-          print('Message also contained a notification: ${message.notification}');
-        }
       }
     });
   }
@@ -134,6 +124,32 @@ class ShoppingListState extends State<HomePage>{
     }
   }
 
+  void _showDialogFromPushNotification(final message)
+  {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(message.notification?.title),
+            content: Text(message.notification?.body),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Add'),
+              ),
+              TextButton(
+                onPressed: () {   
+                  Navigator.of(context).pop();  
+                },
+                child: const Text('Cancel'),
+              ),
+            ],
+          );
+      });
+  }
+
   void _showAddItemDialog() {
     String itemName = '';
 
@@ -178,6 +194,14 @@ class ShoppingListState extends State<HomePage>{
     {
       addItemToList(response);
       Provider.of<PushNotificationProvider>(context, listen: false).clearNotification();
+    }
+
+    var message = ModalRoute.of(context)!.settings.arguments;
+    if(message != null)
+    {
+      _showDialogFromPushNotification(message);
+      message = null;
+      print('passou aqui');
     }
       
     return Scaffold(
