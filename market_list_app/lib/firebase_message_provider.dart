@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +5,7 @@ import 'package:market_list_app/main.dart';
 import 'package:market_list_app/notification.dart';
 import 'package:market_list_app/pages/home_page.dart';
 import 'package:market_list_app/pages/notification_screen.dart';
-import 'package:path/path.dart';
-
 import 'package:provider/provider.dart';
-
 
 Future<void> firebaseMessagingBackground(RemoteMessage message) async {
   if (kDebugMode) {
@@ -25,11 +21,12 @@ class FirebaseApi {
     if (message == null) return;
     
     navigatorKey.currentState?.pushNamed(
-      NotificationScreen.route,
+      HomePage.route,
       arguments: message,
     );
   }
 
+ @pragma('vm:entry-point')
   Future initPushNotifications() async {
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
@@ -37,15 +34,14 @@ class FirebaseApi {
       sound: true,
     );
 
-    FirebaseMessaging.instance.getInitialMessage().then(handleMessage);
+    _firebaseMessaging.getInitialMessage().then(handleMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackground);
   }
 
   Future<void> initNotifications() async {
-    await _firebaseMessaging.requestPermission();
-    
     initPushNotifications();
+    await _firebaseMessaging.requestPermission();
   }
 }
 
@@ -64,8 +60,7 @@ class PushNotificationProvider with ChangeNotifier {
 }
 
 class NotificationListenerProvider {
-  //final _firebaseMessaging = FirebaseMessaging.instance.getInitialMessage();
-
+  
   getMessage(BuildContext context) {
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
     RemoteNotification notification = event.notification!;

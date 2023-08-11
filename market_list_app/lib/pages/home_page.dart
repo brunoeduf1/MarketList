@@ -25,11 +25,11 @@ class ShoppingListState extends State<HomePage>{
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
-    NotificationListenerProvider().getMessage(context);
-    getToken();
 
+    NotificationListenerProvider().getMessage(context);
+    
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.data.isNotEmpty)
       {
@@ -45,10 +45,6 @@ class ShoppingListState extends State<HomePage>{
         _items.add(ShoppingItem(message.data['key1'], false));
       });
     }
-  }
-
-  void getToken() async {
-    final token = await _firebaseMessaging.getToken();
   }
 
   void _toggleItemBoughtStatus(int index) {
@@ -201,7 +197,6 @@ class ShoppingListState extends State<HomePage>{
     {
       _showDialogFromPushNotification(message);
       message = null;
-      print('passou aqui');
     }
       
     return Scaffold(

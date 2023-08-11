@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void sendNotification({String? title, String? body}) async {
@@ -8,27 +10,22 @@ void sendNotification({String? title, String? body}) async {
   // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-  const IOSInitializationSettings initializationSettingsIOS =
-      IOSInitializationSettings(
-    requestAlertPermission: true,
-    requestBadgePermission: true,
-    requestSoundPermission: true,
-  );
+
   const LinuxInitializationSettings initializationSettingsLinux =
       LinuxInitializationSettings(
     defaultActionName: 'hello',
   );
   const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
       linux: initializationSettingsLinux);
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
   );
 
   ///
-  const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'high_channel', 'High Importance Notification',
+ AndroidNotificationChannel channel = AndroidNotificationChannel(
+      Random.secure().nextInt(100000).toString(), 
+      'High Importance Notification',
       description: "This channel is for important notification",
       importance: Importance.max);
 
@@ -37,8 +34,10 @@ void sendNotification({String? title, String? body}) async {
     title,
     body,
     NotificationDetails(
-      android: AndroidNotificationDetails(channel.id, channel.name,
-          channelDescription: channel.description),
+      android: AndroidNotificationDetails(
+        channel.id.toString(), 
+        channel.name.toString(),
+        channelDescription: channel.description),
     ),
   );
 }
