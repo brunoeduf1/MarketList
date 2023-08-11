@@ -28,6 +28,7 @@ class ShoppingListState extends State<HomePage>{
   Future<void> initState() async {
     super.initState();
 
+    await FirebaseApi().initNotifications(context);
     NotificationListenerProvider().getMessage(context);
     
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {

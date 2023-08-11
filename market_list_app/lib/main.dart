@@ -6,8 +6,6 @@ import 'package:market_list_app/firebase_message_provider.dart';
 import 'package:market_list_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:market_list_app/pages/home_page.dart';
-import 'package:market_list_app/pages/notification_screen.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -15,7 +13,6 @@ final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
-  await FirebaseApi().initNotifications();
   
   String? token = await FirebaseMessaging.instance.getToken();
   if (kDebugMode) {
@@ -39,7 +36,6 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       home: const HomePage(),
       routes: {
-        NotificationScreen.route: (context) => const NotificationScreen(),
         HomePage.route: (context) => const HomePage(),
       },
     );
