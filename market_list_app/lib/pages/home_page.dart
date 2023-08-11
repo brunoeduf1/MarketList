@@ -25,18 +25,18 @@ class ShoppingListState extends State<HomePage>{
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
 
-    await FirebaseApi().initNotifications(context);
+    FirebaseApi().initNotifications(context);
     NotificationListenerProvider().getMessage(context);
     
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    /*FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.data.isNotEmpty)
       {
         response = message.data['key1'];
       }
-    });
+    });*/
   }
 
   void addItemToListFromPushNotification(RemoteMessage message) async

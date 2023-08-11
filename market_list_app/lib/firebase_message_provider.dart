@@ -29,10 +29,12 @@ class FirebaseApi {
       handleMessage(context, initialMessage);
     }
 
-    FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      handleMessage(context, event);
-    });
+    //Terminate state
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {handleMessage(context, event);});
+    //Background state
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackground);
+    //Foreground state
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {});
 
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
