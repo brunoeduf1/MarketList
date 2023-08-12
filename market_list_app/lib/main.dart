@@ -6,6 +6,7 @@ import 'package:market_list_app/firebase_message_provider.dart';
 import 'package:market_list_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:market_list_app/pages/home_page.dart';
+import 'package:market_list_app/pages/itemList_page.dart';
 import 'package:provider/provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
       home: const HomePage(),
       routes: {
         HomePage.route: (context) => const HomePage(),
+        ItemListPage.route: (context) => const ItemListPage(message: null),
       },
     );
   }

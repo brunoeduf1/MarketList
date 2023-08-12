@@ -30,13 +30,6 @@ class ShoppingListState extends State<HomePage>{
 
     FirebaseApi().initNotifications(context);
     NotificationListenerProvider().getMessage(context);
-    
-    /*FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      if (message.data.isNotEmpty)
-      {
-        response = message.data['key1'];
-      }
-    });*/
   }
 
   void addItemToListFromPushNotification(RemoteMessage message) async
@@ -121,32 +114,6 @@ class ShoppingListState extends State<HomePage>{
     }
   }
 
-  void _showDialogFromPushNotification(final message)
-  {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(message.notification?.title),
-            content: Text(message.notification?.body),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Add'),
-              ),
-              TextButton(
-                onPressed: () {   
-                  Navigator.of(context).pop();  
-                },
-                child: const Text('Cancel'),
-              ),
-            ],
-          );
-      });
-  }
-
   void _showAddItemDialog() {
     String itemName = '';
 
@@ -186,20 +153,14 @@ class ShoppingListState extends State<HomePage>{
   @override
   Widget build(BuildContext context) {
 
-    bool? isAccepted = Provider.of<PushNotificationProvider>(context).isAccepted;
-    if(isAccepted)
-    {
-      addItemToList(response);
-      Provider.of<PushNotificationProvider>(context, listen: false).clearNotification();
-    }
+    // bool? isAccepted = Provider.of<PushNotificationProvider>(context).isAccepted;
+    // if(isAccepted)
+    // {
+    //   var message = Provider.of<PushNotificationProvider>(context).message;
+    //   //addItemToList(message.data['key1']);
+    //   Provider.of<PushNotificationProvider>(context, listen: false).clearNotification();
+    // }
 
-    var message = ModalRoute.of(context)!.settings.arguments;
-    if(message != null)
-    {
-      _showDialogFromPushNotification(message);
-      message = null;
-    }
-      
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),

@@ -17,7 +17,6 @@ class FirebaseApi {
   void handleMessage(BuildContext context, RemoteMessage message)
   {
     if (message.data['key1'] == null) return;
-    
     Navigator.push(context, MaterialPageRoute(builder: (context) => ItemListPage(message: message)));
   }
 
@@ -52,9 +51,12 @@ class FirebaseApi {
 class PushNotificationProvider with ChangeNotifier {
   bool _isAccepted = false;
   bool get isAccepted => _isAccepted;
+  late RemoteMessage _message;
+  RemoteMessage get message => _message;
 
-  void acceptNotification(bool value) {
+  void acceptNotification(bool value, RemoteMessage remoteMessage) {
     _isAccepted = value;
+    _message = remoteMessage;
     notifyListeners();
   }
 
@@ -82,8 +84,8 @@ class NotificationListenerProvider {
             actions: [
               TextButton(
                 onPressed: () {
-                  Provider.of<PushNotificationProvider>(context, listen: false).acceptNotification(true);
-                  Navigator.of(context).pop();
+                  Provider.of<PushNotificationProvider>(context, listen: false).acceptNotification(true, event);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ItemListPage(message: event)));
                 },
                 child: const Text('Add'),
               ),
