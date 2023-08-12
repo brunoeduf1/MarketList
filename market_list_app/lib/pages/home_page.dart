@@ -70,7 +70,7 @@ class ShoppingListState extends State<HomePage>{
     });
   }
 
-  void _editItem(int index) async {
+  void _editItem(int index) {
     String editedName = '';
     showDialog(
       context: context,
@@ -153,14 +153,6 @@ class ShoppingListState extends State<HomePage>{
   @override
   Widget build(BuildContext context) {
 
-    // bool? isAccepted = Provider.of<PushNotificationProvider>(context).isAccepted;
-    // if(isAccepted)
-    // {
-    //   var message = Provider.of<PushNotificationProvider>(context).message;
-    //   //addItemToList(message.data['key1']);
-    //   Provider.of<PushNotificationProvider>(context, listen: false).clearNotification();
-    // }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),
@@ -200,11 +192,13 @@ class ShoppingListState extends State<HomePage>{
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           FloatingActionButton(
+            heroTag: 'btn1',
             onPressed: _showAddItemDialog,
             child: const Icon(Icons.add),
           ),
           const SizedBox(width: 10),
           FloatingActionButton(
+            heroTag: 'btn2',
             onPressed: () {
               setState(() {
                 //_share();
@@ -214,6 +208,7 @@ class ShoppingListState extends State<HomePage>{
           ),
           const SizedBox(width: 10),
           FloatingActionButton(
+            heroTag: 'btn3',
             onPressed: _selectedItems.isNotEmpty ? _deleteSelectedItems : null,
             backgroundColor: _selectedItems.isNotEmpty ? Colors.red : Colors.grey,
             child: const Icon(Icons.delete),

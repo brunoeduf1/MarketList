@@ -49,24 +49,22 @@ class ItemListState extends State<ItemListPage>
 
   @override
   Widget build(BuildContext context) {
-
-    bool? isAccepted = Provider.of<PushNotificationProvider>(context).isAccepted;
-    Provider.of<PushNotificationProvider>(context, listen: false).clearNotification();
-    if(isAccepted)
-    {
-      var message = Provider.of<PushNotificationProvider>(context).message;
-      //addItemToList(message.data['key1']);
-    }
-    else
-    {
-      setState(() {
+     Future.delayed(Duration.zero,(){
+      bool? isAccepted = Provider.of<PushNotificationProvider>(context, listen: false).isAccepted;
+      Provider.of<PushNotificationProvider>(context, listen: false).clearNotification();
+      if(isAccepted)
+      {
+        var message = Provider.of<PushNotificationProvider>(context, listen: false).message;
+        //addItemToList(message.data['key1']);
+      }
+      else
+      {
         _showDialogFromPushNotification(context);
-      });
-    }
-
+      }
+    });
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exemplo com Scaffold'),
+        title: const Text('List'),
       ),
       body: const Center(
         child: Text(

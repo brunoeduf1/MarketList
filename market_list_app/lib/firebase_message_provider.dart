@@ -33,7 +33,7 @@ class FirebaseApi {
     //Background state
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackground);
     //Foreground state
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {});
+    FirebaseMessaging.onMessage.listen((message){});
 
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
@@ -81,7 +81,7 @@ class NotificationListenerProvider {
           return AlertDialog(
             title: Text(notification.title!),
             content: Text(notification.body!),
-            actions: [
+            actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Provider.of<PushNotificationProvider>(context, listen: false).acceptNotification(true, event);
