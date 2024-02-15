@@ -1,38 +1,53 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:market_list_app/pages/cubits/product_cubit.dart';
+import 'package:market_list_app/pages/cubits/product_states.dart';
 import 'package:provider/provider.dart';
 import '../firebase_message_provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required  this.title});
   static const route = '/home-screen';
 
+  final String title;
+
   @override
-  ShoppingListState createState() => ShoppingListState();
+  State<HomePage> createState() => _MyHomePageState();
 }
 
-class ShoppingItem {
+/*class ShoppingItem {
   String name;
   bool isBought;
   ShoppingItem(this.name, this.isBought);
-}
+}*/
 
-class ShoppingListState extends State<HomePage>{
-  final List<ShoppingItem> _items = [];
+class _MyHomePageState extends State<HomePage>{
+  /*final List<ShoppingItem> _items = [];
   final List<ShoppingItem> _selectedItems = [];
   static String response = ""; 
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;*/
+
+  late final ProductCubit cubit;
+  final TextEditingController _itemController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    FirebaseApi().initNotifications(context);
-    NotificationListenerProvider().getMessage(context);
+    cubit = BlocProvider.of<ProductCubit>(context);
+    cubit.stream.listen((state){
+      if (state is ErrorProductState){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.message))
+        );
+      }
+    });
+    //FirebaseApi().initNotifications(context);
+    //NotificationListenerProvider().getMessage(context);
   }
 
-  void addItemToListFromPushNotification(RemoteMessage message) async
+  /*void addItemToListFromPushNotification(RemoteMessage message) async
   {
     if (mounted) {
       setState(() {
@@ -148,7 +163,7 @@ class ShoppingListState extends State<HomePage>{
         );
       },
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -157,64 +172,99 @@ class ShoppingListState extends State<HomePage>{
       appBar: AppBar(
         title: const Text('Shopping List'),
       ),
-      drawer: const Drawer(),
-      body: ListView.separated(
-        itemCount: _items.length,
-        separatorBuilder: (context, index) => const Divider(height: 1, color: Colors.grey),
-        itemBuilder: (context, index) {
-          final item = _items[index];
-          final isSelected = _selectedItems.contains(item);
-
-          return ListTile(
-            leading: Checkbox(
-              value: isSelected,
-              onChanged: (_) => _toggleItemSelectedStatus(index),
-            ),
-            title: Text(
-              item.name,
-              style: TextStyle(
-                color: item.isBought ? Colors.red : null,
-                decoration: item.isBought ? TextDecoration.lineThrough : null,
-              ),
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                _editItem(index);
-              },
-            ),
-            onTap: () => _toggleItemBoughtStatus(index),
-          );
-        },
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      body: Stack(
         children: [
-          FloatingActionButton(
-            heroTag: 'btn1',
-            onPressed: _showAddItemDialog,
-            child: const Icon(Icons.add),
+          BlocBuilder(
+            bloc: cubit,
+            builder: (context, state){
+              if (state is InitialProductState){
+                return const Center(
+                  child: Text('Nenhum produto foi adicionado ainda'),
+                  );
+              } else if (state is LoadingProductState){
+                return const Center(
+                  child: CircularProgressIndicator(),
+                  );
+              } else if (state is LoadedProductState){
+                return _buildProductList(state.products);
+              } else {
+                  return _buildProductList(cubit.products);
+              }
+            },
           ),
-          const SizedBox(width: 10),
-          FloatingActionButton(
-            heroTag: 'btn2',
-            onPressed: () {
-              setState(() {
-                //_share();
-              });
-              },
-            child: const Icon(Icons.share),
-          ),
-          const SizedBox(width: 10),
-          FloatingActionButton(
-            heroTag: 'btn3',
-            onPressed: _selectedItems.isNotEmpty ? _deleteSelectedItems : null,
-            backgroundColor: _selectedItems.isNotEmpty ? Colors.red : Colors.grey,
-            child: const Icon(Icons.delete),
-          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            left: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(.03),
+                    offset: const Offset(0, -0.5),
+                    blurRadius: 4,
+                  )
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _itemController,
+                        decoration: InputDecoration(
+                          hintText: 'Insert a product',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: () {
+                        cubit.addProduct(product: _itemController.text);
+                        _itemController.clear();
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        child: const Center(
+                          child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          )
+                        ),
+                      ),
+                    )
+                  ]),
+              )
+            ),
+          )
         ],
       ),
+    );
+  }
+
+  Widget _buildProductList(List<String> products) {
+    return ListView.builder(
+      itemCount: products.length,
+      itemBuilder: (_, index) {
+        return ListTile(
+          leading: CircleAvatar(
+            child: Center(child: Text(products[index][0])),
+          ),
+          title: Text(products[index]),
+          trailing: IconButton(
+            onPressed: () {
+              cubit.removeProduct(index: index);
+            },
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.red), 
+            ),
+        );
+      },
     );
   }
 }
