@@ -16,16 +16,10 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _MyHomePageState();
 }
 
-/*class ShoppingItem {
-  String name;
-  bool isBought;
-  ShoppingItem(this.name, this.isBought);
-}*/
-
 class _MyHomePageState extends State<HomePage>{
-  /*final List<ShoppingItem> _items = [];
-  final List<ShoppingItem> _selectedItems = [];
-  static String response = ""; 
+  late List<Product> _items = [];
+
+  /*static String response = ""; 
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;*/
 
@@ -47,6 +41,13 @@ class _MyHomePageState extends State<HomePage>{
     //NotificationListenerProvider().getMessage(context);
   }
 
+  void _toggleItemBoughtStatus(int index, List<Product> products) {
+    setState(() {
+      _items = products;
+      _items[index].isBought = !_items[index].isBought;
+    });
+  }
+
   /*void addItemToListFromPushNotification(RemoteMessage message) async
   {
     if (mounted) {
@@ -56,12 +57,6 @@ class _MyHomePageState extends State<HomePage>{
     }
   }
 
-  void _toggleItemBoughtStatus(int index) {
-    setState(() {
-      _items[index].isBought = !_items[index].isBought;
-    });
-  }
-
   void _toggleItemSelectedStatus(int index) {
     setState(() {
       if (_selectedItems.contains(_items[index])) {
@@ -69,19 +64,6 @@ class _MyHomePageState extends State<HomePage>{
       } else {
         _selectedItems.add(_items[index]);
       }
-    });
-  }
-
-  void _deleteSelectedItems() {
-    setState(() {
-      _items.removeWhere((item) => _selectedItems.contains(item));
-      _selectedItems.clear();
-    });
-  }
-
-  void addItemToList(String itemName, ) {
-    setState(() {
-      _items.add(ShoppingItem(itemName, false));
     });
   }
 
@@ -214,6 +196,7 @@ class _MyHomePageState extends State<HomePage>{
                     Expanded(
                       child: TextFormField(
                         controller: _itemController,
+                        maxLines: null,
                         decoration: InputDecoration(
                           hintText: 'Insert a product',
                           border: OutlineInputBorder(
@@ -224,7 +207,7 @@ class _MyHomePageState extends State<HomePage>{
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () {
-                        cubit.addProduct(product: _itemController.text);
+                        cubit.addProduct(product: Product(_itemController.text, false));
                         _itemController.clear();
                       },
                       child: CircleAvatar(
@@ -246,15 +229,29 @@ class _MyHomePageState extends State<HomePage>{
     );
   }
 
-  Widget _buildProductList(List<String> products) {
+  Widget _buildProductList(List<Product> products) {
     return ListView.builder(
       itemCount: products.length,
       itemBuilder: (_, index) {
-        return ListTile(
+
+        final item = products[index];
+
+        return GestureDetector(
+          onTap: () {
+            _toggleItemBoughtStatus(index, products);
+          },
+          child: ListTile(
           leading: CircleAvatar(
-            child: Center(child: Text(products[index][0])),
+            child: Center(child: Text(products[index].name[0])),
           ),
-          title: Text(products[index]),
+          title: 
+            Text( 
+              products[index].name,
+              style: TextStyle(
+                color: item.isBought ? Colors.red : null,
+                decoration: item.isBought ? TextDecoration.lineThrough : null,
+              ),
+            ),
           trailing: IconButton(
             onPressed: () {
               cubit.removeProduct(index: index);
@@ -262,7 +259,8 @@ class _MyHomePageState extends State<HomePage>{
             icon: const Icon(
               Icons.delete,
               color: Colors.red), 
-            ),
+          ),
+        ),
         );
       },
     );

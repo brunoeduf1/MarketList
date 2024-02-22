@@ -1,15 +1,18 @@
 
 
+import 'dart:ffi';
+
 import 'package:bloc/bloc.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
 class ProductCubit extends Cubit<ProductSate>{
-  final List<String> _products = [];
-  List<String> get products => _products;
-
+  final List<Product> _products = [];
+  List<Product> get products => _products;
+  late List<String> productList;
+  
   ProductCubit() : super(InitialProductState());
 
-  Future<void> addProduct({required String product}) async{
+  Future<void> addProduct({required Product product}) async{
     emit(LoadingProductState());
 
     await Future.delayed(const Duration(seconds: 1));
@@ -17,7 +20,13 @@ class ProductCubit extends Cubit<ProductSate>{
     if (_products.contains(product)){
       emit(ErrorProductState('O produto já foi adicionado'));
     } else{
-      _products.add(product);
+      productList = product.name.split('\n');
+      _products.clear();
+
+      for (String item in productList)
+      {
+        _products.add(Product(item, false));
+      }
       emit(LoadedProductState(_products));
     }
   }
@@ -31,4 +40,12 @@ class ProductCubit extends Cubit<ProductSate>{
 
     emit(LoadedProductState(_products));
   }
+}
+
+class Product
+{
+  late bool isBought;
+  final String name;
+
+  Product(this.name, this.isBought);
 }
