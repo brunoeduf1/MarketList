@@ -1,14 +1,11 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market_list_app/pages/cubits/product_cubit.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
-import 'package:provider/provider.dart';
-import '../firebase_message_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required  this.title});
-  static const route = '/home-screen';
 
   final String title;
 
@@ -18,10 +15,6 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage>{
   late List<Product> _items = [];
-
-  /*static String response = ""; 
-
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;*/
 
   late final ProductCubit cubit;
   final TextEditingController _itemController = TextEditingController();
@@ -37,8 +30,6 @@ class _MyHomePageState extends State<HomePage>{
         );
       }
     });
-    //FirebaseApi().initNotifications(context);
-    //NotificationListenerProvider().getMessage(context);
   }
 
   void _toggleItemBoughtStatus(int index, List<Product> products) {

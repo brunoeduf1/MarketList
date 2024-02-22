@@ -1,7 +1,4 @@
 
-
-import 'dart:ffi';
-
 import 'package:bloc/bloc.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
