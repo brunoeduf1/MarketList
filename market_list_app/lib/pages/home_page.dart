@@ -39,27 +39,11 @@ class _MyHomePageState extends State<HomePage>{
     });
   }
 
-  /*void addItemToListFromPushNotification(RemoteMessage message) async
-  {
-    if (mounted) {
-      setState(() {
-        _items.add(ShoppingItem(message.data['key1'], false));
-      });
-    }
-  }
 
-  void _toggleItemSelectedStatus(int index) {
-    setState(() {
-      if (_selectedItems.contains(_items[index])) {
-        _selectedItems.remove(_items[index]);
-      } else {
-        _selectedItems.add(_items[index]);
-      }
-    });
-  }
-
-  void _editItem(int index) {
+  void _editItem(int index, List<Product> products) {
     String editedName = '';
+    _items = products;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -76,9 +60,7 @@ class _MyHomePageState extends State<HomePage>{
             TextButton(
               onPressed: () {
                 if (newName.isNotEmpty) {
-                  setState(() {
-                    _items[index].name = newName;
-                  });
+                  cubit.updateProduct(index: index, productName: newName);
                 }
                 Navigator.of(context).pop();
               },
@@ -97,46 +79,10 @@ class _MyHomePageState extends State<HomePage>{
 
     if (editedName.isNotEmpty) {
       setState(() {
-        _items[index] = ShoppingItem(editedName, false);
+        _items[index] = Product(editedName, false);
       });
     }
   }
-
-  void _showAddItemDialog() {
-    String itemName = '';
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add Item to List'),
-          content: TextField(
-            onChanged: (value) {
-              itemName = value;
-            },
-            decoration: const InputDecoration(labelText: 'Item Name'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if (itemName.isNotEmpty) {
-                  addItemToList(itemName);
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text('Add'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -222,6 +168,7 @@ class _MyHomePageState extends State<HomePage>{
 
   Widget _buildProductList(List<Product> products) {
     return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 100.0),
       itemCount: products.length,
       itemBuilder: (_, index) {
 
@@ -243,14 +190,25 @@ class _MyHomePageState extends State<HomePage>{
                 decoration: item.isBought ? TextDecoration.lineThrough : null,
               ),
             ),
-          trailing: IconButton(
-            onPressed: () {
-              cubit.removeProduct(index: index);
-            },
-            icon: const Icon(
-              Icons.delete,
-              color: Colors.red), 
-          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () {
+                  _editItem(index, products);
+                },
+                icon: const Icon(
+                  Icons.edit), 
+               ),
+               IconButton(
+                onPressed: () {
+                  cubit.removeProduct(index: index);
+                },
+                icon: const Icon(
+                  Icons.delete), 
+              ),
+          ],
+          )
         ),
         );
       },

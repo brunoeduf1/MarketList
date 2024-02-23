@@ -16,14 +16,19 @@ class ProductCubit extends Cubit<ProductSate>{
 
     if (_products.contains(product)){
       emit(ErrorProductState('O produto já foi adicionado'));
-    } else{
+    } 
+    
+    else{
+
       productList = product.name.split('\n');
-      _products.clear();
 
       for (String item in productList)
       {
-        _products.add(Product(item, false));
+        if(item.isNotEmpty) {
+          _products.add(Product(item, false));
+        }
       }
+
       emit(LoadedProductState(_products));
     }
   }
@@ -37,12 +42,22 @@ class ProductCubit extends Cubit<ProductSate>{
 
     emit(LoadedProductState(_products));
   }
+
+  Future<void> updateProduct({required int index, required String productName}) async{
+    emit(LoadingProductState());
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    _products[index] = Product(productName, false);
+
+    emit(LoadedProductState(_products));
+  }
 }
 
 class Product
 {
   late bool isBought;
-  final String name;
+  late final String name;
 
   Product(this.name, this.isBought);
 }
