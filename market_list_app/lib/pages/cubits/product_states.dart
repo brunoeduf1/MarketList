@@ -1,3 +1,4 @@
+import 'package:market_list_app/Model/product_model.dart';
 import 'package:market_list_app/pages/cubits/product_cubit.dart';
 
 abstract class ProductSate{}

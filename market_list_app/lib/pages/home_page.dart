@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:market_list_app/Model/product_model.dart';
 import 'package:market_list_app/pages/cubits/product_cubit.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
@@ -79,7 +80,7 @@ class _MyHomePageState extends State<HomePage>{
 
     if (editedName.isNotEmpty) {
       setState(() {
-        _items[index] = Product(editedName, false);
+        _items[index] = Product(name: editedName);
       });
     }
   }
@@ -144,7 +145,7 @@ class _MyHomePageState extends State<HomePage>{
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () {
-                        cubit.addProduct(product: Product(_itemController.text, false));
+                        cubit.addProduct(product: Product(name: _itemController.text));
                         _itemController.clear();
                       },
                       child: CircleAvatar(

@@ -1,5 +1,6 @@
-
 import 'package:bloc/bloc.dart';
+import 'package:market_list_app/Model/product_model.dart';
+import 'package:market_list_app/database/database.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
 class ProductCubit extends Cubit<ProductSate>{
@@ -19,13 +20,13 @@ class ProductCubit extends Cubit<ProductSate>{
     } 
     
     else{
-
       productList = product.name.split('\n');
 
       for (String item in productList)
       {
         if(item.isNotEmpty) {
-          _products.add(Product(item, false));
+          await DatabaseHelper.instance.insert(Product(name: item));
+          _products.add(Product(name: item));
         }
       }
 
@@ -38,6 +39,7 @@ class ProductCubit extends Cubit<ProductSate>{
 
     await Future.delayed(const Duration(seconds: 1));
 
+    await DatabaseHelper.instance.delete(index);
     _products.removeAt(index);
 
     emit(LoadedProductState(_products));
@@ -48,16 +50,20 @@ class ProductCubit extends Cubit<ProductSate>{
 
     await Future.delayed(const Duration(seconds: 1));
 
-    _products[index] = Product(productName, false);
+    await DatabaseHelper.instance.update(Product(name: productName));
+    _products[index] = Product(name: productName);
 
     emit(LoadedProductState(_products));
   }
-}
 
-class Product
-{
-  late bool isBought;
-  late final String name;
+  Future<List<Product>> getAllProducts() async
+  {
+    emit(LoadingProductState());
 
-  Product(this.name, this.isBought);
+    var productList = await DatabaseHelper.instance.getAllProducts();
+
+    emit(LoadedProductState(_products));
+
+    return productList;
+  }
 }
