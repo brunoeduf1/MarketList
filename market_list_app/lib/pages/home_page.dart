@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market_list_app/Model/product_model.dart';
+import 'package:market_list_app/database/database.dart';
 import 'package:market_list_app/pages/cubits/product_cubit.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
@@ -33,13 +34,17 @@ class _MyHomePageState extends State<HomePage>{
     });
   }
 
+  void getListFromDatabase()
+  {
+    
+  }
+
   void _toggleItemBoughtStatus(int index, List<Product> products) {
     setState(() {
       _items = products;
-      _items[index].isBought = !_items[index].isBought;
+      //_items[index].isBought = !_items[index].isBought;
     });
   }
-
 
   void _editItem(int index, List<Product> products) {
     String editedName = '';
@@ -87,7 +92,7 @@ class _MyHomePageState extends State<HomePage>{
 
   @override
   Widget build(BuildContext context) {
-
+  
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),
@@ -98,15 +103,14 @@ class _MyHomePageState extends State<HomePage>{
             bloc: cubit,
             builder: (context, state){
               if (state is InitialProductState){
-                return const Center(
-                  child: Text('Nenhum produto foi adicionado ainda'),
-                  );
+                cubit.getAllProducts();
+                return  _buildProductList(cubit.products);
               } else if (state is LoadingProductState){
                 return const Center(
                   child: CircularProgressIndicator(),
                   );
               } else if (state is LoadedProductState){
-                return _buildProductList(state.products);
+                return  _buildProductList(state.products);
               } else {
                   return _buildProductList(cubit.products);
               }
@@ -187,8 +191,8 @@ class _MyHomePageState extends State<HomePage>{
             Text( 
               products[index].name,
               style: TextStyle(
-                color: item.isBought ? Colors.red : null,
-                decoration: item.isBought ? TextDecoration.lineThrough : null,
+                color: item.isBought == 1 ? Colors.red : null,
+                decoration: item.isBought == 1 ? TextDecoration.lineThrough : null,
               ),
             ),
           trailing: Row(

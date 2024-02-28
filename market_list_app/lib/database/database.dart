@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:market_list_app/Model/product_model.dart';
-import 'package:market_list_app/pages/cubits/product_cubit.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -13,6 +12,8 @@ class DatabaseHelper {
   static const columnId = 'id';
   static const columnName = 'nome';
   static const columnIsBought = 'isBought';
+
+  DatabaseHelper();
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();

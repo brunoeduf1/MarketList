@@ -4,9 +4,10 @@ import 'package:market_list_app/database/database.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
 class ProductCubit extends Cubit<ProductSate>{
-  final List<Product> _products = [];
+  late List<Product> _products = [];
   List<Product> get products => _products;
   late List<String> productList;
+  late List<String> productListDb;
   
   ProductCubit() : super(InitialProductState());
 
@@ -26,7 +27,7 @@ class ProductCubit extends Cubit<ProductSate>{
       {
         if(item.isNotEmpty) {
           await DatabaseHelper.instance.insert(Product(name: item));
-          _products.add(Product(name: item));
+          _products.add(Product(name: item));       
         }
       }
 
@@ -40,7 +41,7 @@ class ProductCubit extends Cubit<ProductSate>{
     await Future.delayed(const Duration(seconds: 1));
 
     await DatabaseHelper.instance.delete(index);
-    _products.removeAt(index);
+    _products = await DatabaseHelper.instance.getAllProducts();
 
     emit(LoadedProductState(_products));
   }
@@ -50,20 +51,21 @@ class ProductCubit extends Cubit<ProductSate>{
 
     await Future.delayed(const Duration(seconds: 1));
 
-    await DatabaseHelper.instance.update(Product(name: productName));
-    _products[index] = Product(name: productName);
+    await DatabaseHelper.instance.update(Product(name: productName, id: index));
+    _products = await DatabaseHelper.instance.getAllProducts();
 
     emit(LoadedProductState(_products));
   }
 
-  Future<List<Product>> getAllProducts() async
-  {
+  Future<List<Product>> getAllProducts() async{
     emit(LoadingProductState());
 
-    var productList = await DatabaseHelper.instance.getAllProducts();
+    await Future.delayed(const Duration(seconds: 1));
+
+    _products = await DatabaseHelper.instance.getAllProducts();
 
     emit(LoadedProductState(_products));
 
-    return productList;
+    return _products;
   }
 }

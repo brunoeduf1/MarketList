@@ -1,10 +1,10 @@
 class Product
 {
-  int id;
-  late bool isBought;
+  int? id;
+  late int isBought;
   late final String name;
 
-  Product( {required this.name, this.isBought = false, this.id = 0});
+  Product( {required this.name, this.isBought = 0, this.id});
 
   Map<String, dynamic> toMap() {
     return {
