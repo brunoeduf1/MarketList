@@ -7,7 +7,6 @@ class ProductCubit extends Cubit<ProductSate>{
   late List<Product> _products = [];
   List<Product> get products => _products;
   late List<String> productList;
-  late List<String> productListDb;
   
   ProductCubit() : super(InitialProductState());
 
@@ -26,41 +25,35 @@ class ProductCubit extends Cubit<ProductSate>{
       for (String item in productList)
       {
         if(item.isNotEmpty) {
-          await DatabaseHelper.instance.insert(Product(name: item));
-          _products.add(Product(name: item));       
+          await DatabaseHelper.instance.insert(Product(name: item));   
         }
       }
 
+      _products = await DatabaseHelper.instance.getAllProducts();
       emit(LoadedProductState(_products));
     }
   }
 
-  Future<void> removeProduct({required int index}) async{
-    emit(LoadingProductState());
+  Future<void> removeProduct({required Product product}) async{
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    await DatabaseHelper.instance.delete(index);
+    await DatabaseHelper.instance.delete(product);
     _products = await DatabaseHelper.instance.getAllProducts();
 
     emit(LoadedProductState(_products));
   }
 
-  Future<void> updateProduct({required int index, required String productName}) async{
-    emit(LoadingProductState());
+  Future<void> updateProduct({required Product product, required String newProductName, int isBought = 0}) async{
 
-    await Future.delayed(const Duration(seconds: 1));
+    product.name = newProductName;
+    product.isBought = isBought;
 
-    await DatabaseHelper.instance.update(Product(name: productName, id: index));
+    await DatabaseHelper.instance.update(product);  
     _products = await DatabaseHelper.instance.getAllProducts();
 
     emit(LoadedProductState(_products));
   }
 
   Future<List<Product>> getAllProducts() async{
-    emit(LoadingProductState());
-
-    await Future.delayed(const Duration(seconds: 1));
 
     _products = await DatabaseHelper.instance.getAllProducts();
 

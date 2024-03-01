@@ -2,7 +2,7 @@ class Product
 {
   int? id;
   late int isBought;
-  late final String name;
+  late String name;
 
   Product( {required this.name, this.isBought = 0, this.id});
 

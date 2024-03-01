@@ -47,9 +47,9 @@ class DatabaseHelper {
     return await db.insert(table, product.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<int> delete(int id) async {
+  Future<int> delete(Product product) async {
     Database db = await instance.database;
-    return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
+    return await db.delete(table, where: '$columnId = ?', whereArgs: [product.id]);
   }
 
   Future<void> update(Product product) async {

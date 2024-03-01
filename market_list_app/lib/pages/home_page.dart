@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market_list_app/Model/product_model.dart';
-import 'package:market_list_app/database/database.dart';
 import 'package:market_list_app/pages/cubits/product_cubit.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
@@ -34,16 +32,16 @@ class _MyHomePageState extends State<HomePage>{
     });
   }
 
-  void getListFromDatabase()
-  {
-    
-  }
-
   void _toggleItemBoughtStatus(int index, List<Product> products) {
     setState(() {
       _items = products;
-      //_items[index].isBought = !_items[index].isBought;
+      _items[index].isBought == 1 ? _items[index].isBought = 0 : _items[index].isBought = 1;
     });
+
+    cubit.updateProduct(
+      product: _items[index], 
+      newProductName: products[index].name, 
+      isBought: _items[index].isBought);
   }
 
   void _editItem(int index, List<Product> products) {
@@ -66,7 +64,7 @@ class _MyHomePageState extends State<HomePage>{
             TextButton(
               onPressed: () {
                 if (newName.isNotEmpty) {
-                  cubit.updateProduct(index: index, productName: newName);
+                  cubit.updateProduct(product: _items[index], newProductName: newName);
                 }
                 Navigator.of(context).pop();
               },
@@ -207,7 +205,7 @@ class _MyHomePageState extends State<HomePage>{
                ),
                IconButton(
                 onPressed: () {
-                  cubit.removeProduct(index: index);
+                  cubit.removeProduct(product: products[index]);
                 },
                 icon: const Icon(
                   Icons.delete), 
