@@ -12,6 +12,7 @@ class DatabaseHelper {
   static const columnId = 'id';
   static const columnName = 'nome';
   static const columnIsBought = 'isBought';
+  static const columnIndex = 'indx';
 
   DatabaseHelper();
 
@@ -37,9 +38,8 @@ class DatabaseHelper {
       CREATE TABLE $table (
         $columnId INTEGER PRIMARY KEY,
         $columnName TEXT,
-        $columnIsBought INTEGER
-      )
-    ''');
+        $columnIsBought INTEGER,
+        $columnIndex INTEGER)''');
   }
 
   Future<int> insert(Product product) async {

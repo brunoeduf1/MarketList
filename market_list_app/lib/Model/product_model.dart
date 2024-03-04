@@ -1,16 +1,18 @@
 class Product
 {
   int? id;
+  late int indx;
   late int isBought;
   late String name;
 
-  Product( {required this.name, this.isBought = 0, this.id});
+  Product({required this.name, this.isBought = 0, this.id, required this.indx});
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'nome': name,
-      'isBought': isBought
+      'isBought': isBought,
+      'indx': indx
     };
   }
 
@@ -18,7 +20,8 @@ class Product
     return Product(
       id: map['id'],
       name: map['nome'],
-      isBought: map['isBought']
+      isBought: map['isBought'],
+      indx: map['indx']
     );
   }
 }

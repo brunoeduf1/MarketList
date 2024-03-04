@@ -5,7 +5,7 @@ import 'package:market_list_app/pages/cubits/product_cubit.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required  this.title});
+  const HomePage({super.key, required this.title});
 
   final String title;
 
@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<HomePage>{
+class _MyHomePageState extends State<HomePage> {
   late List<Product> _items = [];
 
   late final ProductCubit cubit;
@@ -23,25 +23,26 @@ class _MyHomePageState extends State<HomePage>{
   void initState() {
     super.initState();
     cubit = BlocProvider.of<ProductCubit>(context);
-    cubit.stream.listen((state){
-      if (state is ErrorProductState){
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.message))
-        );
+    cubit.stream.listen((state) {
+      if (state is ErrorProductState) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(state.message)));
       }
     });
   }
 
   void _toggleItemBoughtStatus(int index, List<Product> products) {
     setState(() {
-      _items = products;
-      _items[index].isBought == 1 ? _items[index].isBought = 0 : _items[index].isBought = 1;
+      products[index].isBought == 1
+        ? products[index].isBought = 0
+        : products[index].isBought = 1;
     });
 
     cubit.updateProduct(
-      product: _items[index], 
-      newProductName: products[index].name, 
-      isBought: _items[index].isBought);
+      product: products[index],
+      newProductName: products[index].name,
+      isBought: products[index].isBought,
+      indx: products[index].indx);
   }
 
   void _editItem(int index, List<Product> products) {
@@ -64,7 +65,8 @@ class _MyHomePageState extends State<HomePage>{
             TextButton(
               onPressed: () {
                 if (newName.isNotEmpty) {
-                  cubit.updateProduct(product: _items[index], newProductName: newName);
+                  cubit.updateProduct(
+                    product: _items[index], newProductName: newName, indx: _items[index].indx);
                 }
                 Navigator.of(context).pop();
               },
@@ -83,14 +85,13 @@ class _MyHomePageState extends State<HomePage>{
 
     if (editedName.isNotEmpty) {
       setState(() {
-        _items[index] = Product(name: editedName);
+        _items[index] = Product(name: editedName, indx: _items[index].indx);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),
@@ -99,18 +100,18 @@ class _MyHomePageState extends State<HomePage>{
         children: [
           BlocBuilder(
             bloc: cubit,
-            builder: (context, state){
-              if (state is InitialProductState){
+            builder: (context, state) {
+              if (state is InitialProductState) {
                 cubit.getAllProducts();
-                return  _buildProductList(cubit.products);
-              } else if (state is LoadingProductState){
+                return _buildProductList(cubit.products);
+              } else if (state is LoadingProductState) {
                 return const Center(
                   child: CircularProgressIndicator(),
-                  );
-              } else if (state is LoadedProductState){
-                return  _buildProductList(state.products);
+                );
+              } else if (state is LoadedProductState) {
+                return _buildProductList(state.products);
               } else {
-                  return _buildProductList(cubit.products);
+                return _buildProductList(cubit.products);
               }
             },
           ),
@@ -119,20 +120,19 @@ class _MyHomePageState extends State<HomePage>{
             right: 0,
             left: 0,
             child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(.03),
-                    offset: const Offset(0, -0.5),
-                    blurRadius: 4,
-                  )
-                ],
-              ),
-              padding: const EdgeInsets.all(16),
-              child: SafeArea(
-                child: Row(
-                  children: [
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.03),
+                      offset: const Offset(0, -0.5),
+                      blurRadius: 4,
+                    )
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: SafeArea(
+                  child: Row(children: [
                     Expanded(
                       child: TextFormField(
                         controller: _itemController,
@@ -140,29 +140,29 @@ class _MyHomePageState extends State<HomePage>{
                         decoration: InputDecoration(
                           hintText: 'Insert a product',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () {
-                        cubit.addProduct(product: Product(name: _itemController.text));
+                        cubit.addProduct(
+                          product: Product(name: _itemController.text, indx: _items.length));
                         _itemController.clear();
                       },
                       child: CircleAvatar(
                         backgroundColor: Theme.of(context).primaryColor,
                         child: const Center(
-                          child: Icon(
+                            child: Icon(
                           Icons.add,
                           color: Colors.white,
-                          )
-                        ),
+                        )),
                       ),
                     )
                   ]),
-              )
-            ),
+                )),
           )
         ],
       ),
@@ -170,51 +170,56 @@ class _MyHomePageState extends State<HomePage>{
   }
 
   Widget _buildProductList(List<Product> products) {
-    return ListView.builder(
+    return ReorderableListView(
       padding: const EdgeInsets.only(bottom: 100.0),
-      itemCount: products.length,
-      itemBuilder: (_, index) {
+      onReorder: (oldIndex, newIndex) {
+        cubit.reorderProductList(selectedProduct: products[oldIndex], newIndex: newIndex);
+      },
+      children: List.generate(
+        products.length,
+        (index) {
 
-        final item = products[index];
+          products.sort((a, b) => a.indx.compareTo(b.indx));
+          final item = products[index];
 
-        return GestureDetector(
-          onTap: () {
-            _toggleItemBoughtStatus(index, products);
-          },
-          child: ListTile(
-          leading: CircleAvatar(
-            child: Center(child: Text(products[index].name[0])),
-          ),
-          title: 
-            Text( 
-              products[index].name,
-              style: TextStyle(
-                color: item.isBought == 1 ? Colors.red : null,
-                decoration: item.isBought == 1 ? TextDecoration.lineThrough : null,
+          return GestureDetector(
+            key: Key(index.toString()),
+            onTap: () {
+              _toggleItemBoughtStatus(index, products);
+            },
+            child: ListTile(
+              leading: CircleAvatar(
+                child: Center(child: Text(products[index].name[0])),
+              ),
+              title: Text(
+                products[index].name,
+                style: TextStyle(
+                  color: item.isBought == 1 ? Colors.red : null,
+                  decoration:
+                    item.isBought == 1 ? TextDecoration.lineThrough : null,
+                ),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      _editItem(index, products);
+                    },
+                    icon: const Icon(Icons.edit),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      cubit.removeProduct(product: products[index]);
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+                ],
               ),
             ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: () {
-                  _editItem(index, products);
-                },
-                icon: const Icon(
-                  Icons.edit), 
-               ),
-               IconButton(
-                onPressed: () {
-                  cubit.removeProduct(product: products[index]);
-                },
-                icon: const Icon(
-                  Icons.delete), 
-              ),
-          ],
-          )
-        ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
