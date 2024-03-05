@@ -30,7 +30,8 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), _databaseName);
-    return await openDatabase(path, version: _databaseVersion, onCreate: _onCreate);
+    return await openDatabase(path,
+        version: _databaseVersion, onCreate: _onCreate);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -44,17 +45,20 @@ class DatabaseHelper {
 
   Future<int> insert(Product product) async {
     Database db = await instance.database;
-    return await db.insert(table, product.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await db.insert(table, product.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<int> delete(Product product) async {
     Database db = await instance.database;
-    return await db.delete(table, where: '$columnId = ?', whereArgs: [product.id]);
+    return await db
+        .delete(table, where: '$columnId = ?', whereArgs: [product.id]);
   }
 
-  Future<void> update(Product product) async {
+  Future<void> updateItem(Product product) async {
     Database db = await instance.database;
-    await db.update(table, product.toMap(), where: '$columnId = ?', whereArgs: [product.id]);
+    await db.update(table, product.toMap(),
+        where: '$columnId = ?', whereArgs: [product.id]);
   }
 
   Future<List<Product>> getAllProducts() async {

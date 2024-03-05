@@ -52,7 +52,16 @@ class ProductCubit extends Cubit<ProductSate>{
     product.isBought = isBought;
     product.indx = indx;
 
-    await DatabaseHelper.instance.update(product);  
+    await DatabaseHelper.instance.updateItem(product);  
+    _products = await DatabaseHelper.instance.getAllProducts();
+
+    emit(LoadedProductState(_products));
+  }
+
+  Future<void> updateProductIndex({required Product product, required int newIndex}) async{
+    product.indx = newIndex;
+
+    await DatabaseHelper.instance.updateItem(product);  
     _products = await DatabaseHelper.instance.getAllProducts();
 
     emit(LoadedProductState(_products));
@@ -65,23 +74,5 @@ class ProductCubit extends Cubit<ProductSate>{
     emit(LoadedProductState(_products));
 
     return _products;
-  }
-
-  Future<void> reorderProductList({ required Product selectedProduct, required int newIndex}) async{
-
-    emit(LoadingProductState());
-
-    if (newIndex > selectedProduct.indx) {
-      newIndex -= 1;
-    }
-
-    Product product = selectedProduct;
-    product.indx = newIndex;
-    await DatabaseHelper.instance.delete(selectedProduct);
-    await DatabaseHelper.instance.insert(product);
-
-    _products = await DatabaseHelper.instance.getAllProducts();
-
-    emit(LoadedProductState(_products));
   }
 }

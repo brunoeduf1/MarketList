@@ -34,15 +34,15 @@ class _MyHomePageState extends State<HomePage> {
   void _toggleItemBoughtStatus(int index, List<Product> products) {
     setState(() {
       products[index].isBought == 1
-        ? products[index].isBought = 0
-        : products[index].isBought = 1;
+          ? products[index].isBought = 0
+          : products[index].isBought = 1;
     });
 
     cubit.updateProduct(
-      product: products[index],
-      newProductName: products[index].name,
-      isBought: products[index].isBought,
-      indx: products[index].indx);
+        product: products[index],
+        newProductName: products[index].name,
+        isBought: products[index].isBought,
+        indx: index);
   }
 
   void _editItem(int index, List<Product> products) {
@@ -66,7 +66,10 @@ class _MyHomePageState extends State<HomePage> {
               onPressed: () {
                 if (newName.isNotEmpty) {
                   cubit.updateProduct(
-                    product: _items[index], newProductName: newName, indx: _items[index].indx);
+                      product: _items[index],
+                      newProductName: newName,
+                      indx: index,
+                      isBought: _items[index].isBought);
                 }
                 Navigator.of(context).pop();
               },
@@ -85,7 +88,8 @@ class _MyHomePageState extends State<HomePage> {
 
     if (editedName.isNotEmpty) {
       setState(() {
-        _items[index] = Product(name: editedName, indx: _items[index].indx);
+        _items[index] = Product(
+            name: editedName, indx: index, isBought: _items[index].isBought);
       });
     }
   }
@@ -149,7 +153,9 @@ class _MyHomePageState extends State<HomePage> {
                     GestureDetector(
                       onTap: () {
                         cubit.addProduct(
-                          product: Product(name: _itemController.text, indx: _items.length));
+                            product: Product(
+                                name: _itemController.text,
+                                indx: _items.length));
                         _itemController.clear();
                       },
                       child: CircleAvatar(
@@ -173,12 +179,23 @@ class _MyHomePageState extends State<HomePage> {
     return ReorderableListView(
       padding: const EdgeInsets.only(bottom: 100.0),
       onReorder: (oldIndex, newIndex) {
-        cubit.reorderProductList(selectedProduct: products[oldIndex], newIndex: newIndex);
+        setState(() {
+          if (newIndex > oldIndex) {
+            newIndex -= 1;
+          }
+          final item = products.removeAt(oldIndex);
+          products.insert(newIndex, item);
+
+          int updatedIntex = 0;
+          for (Product item in products) {
+            cubit.updateProductIndex(product: item, newIndex: updatedIntex);
+            updatedIntex++;
+          }
+        });
       },
       children: List.generate(
         products.length,
         (index) {
-
           products.sort((a, b) => a.indx.compareTo(b.indx));
           final item = products[index];
 
@@ -196,7 +213,7 @@ class _MyHomePageState extends State<HomePage> {
                 style: TextStyle(
                   color: item.isBought == 1 ? Colors.red : null,
                   decoration:
-                    item.isBought == 1 ? TextDecoration.lineThrough : null,
+                      item.isBought == 1 ? TextDecoration.lineThrough : null,
                 ),
               ),
               trailing: Row(
