@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:market_list_app/Model/product_model.dart';
 import 'package:market_list_app/pages/cubits/product_cubit.dart';
 import 'package:market_list_app/pages/cubits/product_states.dart';
@@ -107,15 +108,15 @@ class _MyHomePageState extends State<HomePage> {
             builder: (context, state) {
               if (state is InitialProductState) {
                 cubit.getAllProducts();
-                return _buildProductList(cubit.products);
+                return _buildProductList(context, cubit.products);
               } else if (state is LoadingProductState) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
               } else if (state is LoadedProductState) {
-                return _buildProductList(state.products);
+                return _buildProductList(context, state.products);
               } else {
-                return _buildProductList(cubit.products);
+                return _buildProductList(context, cubit.products);
               }
             },
           ),
@@ -175,7 +176,7 @@ class _MyHomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProductList(List<Product> products) {
+  Widget _buildProductList(BuildContext context, List<Product> products) {
     return ReorderableListView(
       padding: const EdgeInsets.only(bottom: 100.0),
       onReorder: (oldIndex, newIndex) {
@@ -198,40 +199,51 @@ class _MyHomePageState extends State<HomePage> {
         (index) {
           products.sort((a, b) => a.indx.compareTo(b.indx));
           final item = products[index];
-
-          return GestureDetector(
+          return Slidable(
             key: Key(index.toString()),
-            onTap: () {
-              _toggleItemBoughtStatus(index, products);
-            },
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Center(child: Text(products[index].name[0])),
-              ),
-              title: Text(
-                products[index].name,
-                style: TextStyle(
-                  color: item.isBought == 1 ? Colors.red : null,
-                  decoration:
-                      item.isBought == 1 ? TextDecoration.lineThrough : null,
+            startActionPane: ActionPane(
+              motion: const BehindMotion(),
+              dismissible: DismissiblePane(onDismissed: () {}),
+              children: [
+                SlidableAction(
+                  onPressed: (context) =>
+                      cubit.removeProduct(product: products[index]),
+                  backgroundColor: const Color(0xFFFE4A49),
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete,
+                  label: 'Delete',
                 ),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      _editItem(index, products);
-                    },
-                    icon: const Icon(Icons.edit),
+              ],
+            ),
+            endActionPane: ActionPane(
+              motion: const BehindMotion(),
+              children: [
+                SlidableAction(
+                  onPressed: (context) => _editItem(index, products),
+                  backgroundColor: const Color(0xFF0392CF),
+                  foregroundColor: Colors.white,
+                  icon: Icons.edit,
+                  label: 'Edit',
+                ),
+              ],
+            ),
+            child: GestureDetector(
+              key: Key(index.toString()),
+              onTap: () {
+                _toggleItemBoughtStatus(index, products);
+              },
+              child: ListTile(
+                leading: CircleAvatar(
+                  child: Center(child: Text(products[index].name[0])),
+                ),
+                title: Text(
+                  products[index].name,
+                  style: TextStyle(
+                    color: item.isBought == 1 ? Colors.red : null,
+                    decoration:
+                        item.isBought == 1 ? TextDecoration.lineThrough : null,
                   ),
-                  IconButton(
-                    onPressed: () {
-                      cubit.removeProduct(product: products[index]);
-                    },
-                    icon: const Icon(Icons.delete),
-                  ),
-                ],
+                ),
               ),
             ),
           );
