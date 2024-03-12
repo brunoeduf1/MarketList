@@ -47,7 +47,7 @@ class ProductCubit extends Cubit<ProductSate>{
   }
 
   Future<void> clearList() async{
-    
+
     for(Product item in _products){
       await DatabaseHelper.instance.delete(item);
     }

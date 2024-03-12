@@ -123,10 +123,16 @@ class _MyHomePageState extends State<HomePage> {
         actions: <Widget>[
           IconButton(
             onPressed: () => { 
+              //cubit.undoChanges(),
+            },
+            icon: const Icon(Icons.undo),
+            color: Colors.grey[300]),
+          IconButton(
+            onPressed: () => { 
               _clearListDialog()
             },
             icon: const Icon(Icons.delete),
-            color: Colors.grey[300])
+            color: Colors.grey[300]),
         ],
       ),
       body: Stack(
