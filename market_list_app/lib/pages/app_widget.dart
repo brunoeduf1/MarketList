@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget{
       child: MaterialApp(
           title: 'Cubit',
           theme: ThemeData(
-            primarySwatch: Colors.indigo,
+            primarySwatch: Colors.blue,
           ),
           home: const HomePage(title: 'Shopping List'),
           debugShowCheckedModeBanner: false,   

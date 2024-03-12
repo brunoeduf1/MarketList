@@ -46,9 +46,20 @@ class ProductCubit extends Cubit<ProductSate>{
     emit(LoadedProductState(_products));
   }
 
-  Future<void> updateProduct({required Product product, required String newProductName, int isBought = 0, int indx = 0}) async{
+  Future<void> clearList() async{
+    
+    for(Product item in _products){
+      await DatabaseHelper.instance.delete(item);
+    }
 
-    product.name = newProductName;
+     _products = await DatabaseHelper.instance.getAllProducts();
+
+    emit(LoadedProductState(_products));
+  }
+
+  Future<void> updateProduct({required Product product, required String name, required isBought, required indx}) async{
+
+    product.name = name;
     product.isBought = isBought;
     product.indx = indx;
 

@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<HomePage> {
-  late List<Product> _items = [];
+  late final List<Product> _items = [];
 
   late final ProductCubit cubit;
   final TextEditingController _itemController = TextEditingController();
@@ -33,27 +33,49 @@ class _MyHomePageState extends State<HomePage> {
   }
 
   void _toggleItemBoughtStatus(int index, List<Product> products) {
-    setState(() {
-      products[index].isBought == 1
-          ? products[index].isBought = 0
-          : products[index].isBought = 1;
-    });
+    products[index].isBought == 1
+        ? products[index].isBought = 0
+        : products[index].isBought = 1;
 
     cubit.updateProduct(
         product: products[index],
-        newProductName: products[index].name,
+        name: products[index].name,
         isBought: products[index].isBought,
         indx: index);
   }
 
-  void _editItem(int index, List<Product> products) {
-    String editedName = '';
-    _items = products;
-
+  void _clearListDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String newName = _items[index].name;
+        return AlertDialog(
+          title: const Text('Clear list'),
+          content: const Text('Deseja excluir todos os itens da lista?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                cubit.clearList();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Ok'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _editItemDialog(int index, List<Product> products) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String newName = products[index].name;
         return AlertDialog(
           title: const Text('Item edit'),
           content: TextField(
@@ -67,10 +89,10 @@ class _MyHomePageState extends State<HomePage> {
               onPressed: () {
                 if (newName.isNotEmpty) {
                   cubit.updateProduct(
-                      product: _items[index],
-                      newProductName: newName,
+                      product: products[index],
+                      name: newName,
                       indx: index,
-                      isBought: _items[index].isBought);
+                      isBought: products[index].isBought);
                 }
                 Navigator.of(context).pop();
               },
@@ -86,20 +108,26 @@ class _MyHomePageState extends State<HomePage> {
         );
       },
     );
-
-    if (editedName.isNotEmpty) {
-      setState(() {
-        _items[index] = Product(
-            name: editedName, indx: index, isBought: _items[index].isBought);
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping List'),
+        title: const Text('Shopping List',
+          style: TextStyle(
+            color: Colors.white,
+          )),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        actions: <Widget>[
+          IconButton(
+            onPressed: () => { 
+              _clearListDialog()
+            },
+            icon: const Icon(Icons.delete),
+            color: Colors.grey[300])
+        ],
       ),
       body: Stack(
         children: [
@@ -153,10 +181,7 @@ class _MyHomePageState extends State<HomePage> {
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () {
-                        cubit.addProduct(
-                            product: Product(
-                                name: _itemController.text,
-                                indx: _items.length));
+                        cubit.addProduct(product: Product(name: _itemController.text, indx: _items.length));
                         _itemController.clear();
                       },
                       child: CircleAvatar(
@@ -199,49 +224,53 @@ class _MyHomePageState extends State<HomePage> {
         (index) {
           products.sort((a, b) => a.indx.compareTo(b.indx));
           final item = products[index];
-          return Slidable(
+          return Card(
+            elevation: 5.0,
             key: Key(index.toString()),
-            startActionPane: ActionPane(
-              motion: const BehindMotion(),
-              dismissible: DismissiblePane(onDismissed: () {}),
-              children: [
-                SlidableAction(
-                  onPressed: (context) =>
-                      cubit.removeProduct(product: products[index]),
-                  backgroundColor: const Color(0xFFFE4A49),
-                  foregroundColor: Colors.white,
-                  icon: Icons.delete,
-                  label: 'Delete',
-                ),
-              ],
-            ),
-            endActionPane: ActionPane(
-              motion: const BehindMotion(),
-              children: [
-                SlidableAction(
-                  onPressed: (context) => _editItem(index, products),
-                  backgroundColor: const Color(0xFF0392CF),
-                  foregroundColor: Colors.white,
-                  icon: Icons.edit,
-                  label: 'Edit',
-                ),
-              ],
-            ),
-            child: GestureDetector(
+            child: Slidable(
               key: Key(index.toString()),
-              onTap: () {
-                _toggleItemBoughtStatus(index, products);
-              },
-              child: ListTile(
-                leading: CircleAvatar(
-                  child: Center(child: Text(products[index].name[0])),
-                ),
-                title: Text(
-                  products[index].name,
-                  style: TextStyle(
-                    color: item.isBought == 1 ? Colors.red : null,
-                    decoration:
-                        item.isBought == 1 ? TextDecoration.lineThrough : null,
+              startActionPane: ActionPane(
+                motion: const BehindMotion(),
+                dismissible: DismissiblePane(onDismissed: () {}),
+                children: [
+                  SlidableAction(
+                    onPressed: (context) =>
+                      cubit.removeProduct(product: products[index]),
+                      backgroundColor: const Color(0xFFFE4A49),
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: 'Delete',
+                  ),
+                ],
+              ),
+              endActionPane: ActionPane(
+                motion: const BehindMotion(),
+                children: [
+                  SlidableAction(
+                    onPressed: (context) => _editItemDialog(index, products),
+                    backgroundColor: const Color(0xFF0392CF),
+                    foregroundColor: Colors.white,
+                    icon: Icons.edit,
+                    label: 'Edit',
+                  ),
+                ],
+              ),
+              child: GestureDetector(
+                key: Key(index.toString()),  
+                onTap: () {
+                  _toggleItemBoughtStatus(index, products);
+                },
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Center(child: Text(products[index].name[0])),
+                  ),
+                  title: Text(
+                    products[index].name,
+                    style: TextStyle(
+                      color: item.isBought == 1 ? Colors.red : null,
+                      decoration:
+                          item.isBought == 1 ? TextDecoration.lineThrough : null,
+                    ),
                   ),
                 ),
               ),
