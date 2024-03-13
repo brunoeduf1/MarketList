@@ -115,24 +115,16 @@ class _MyHomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List',
-          style: TextStyle(
-            color: Colors.white,
-          )),
+            style: TextStyle(
+              color: Colors.white,
+            )),
         centerTitle: true,
         backgroundColor: Colors.blue,
         actions: <Widget>[
           IconButton(
-            onPressed: () => { 
-              //cubit.undoChanges(),
-            },
-            icon: const Icon(Icons.undo),
-            color: Colors.grey[300]),
-          IconButton(
-            onPressed: () => { 
-              _clearListDialog()
-            },
-            icon: const Icon(Icons.delete),
-            color: Colors.grey[300]),
+              onPressed: () => {_clearListDialog()},
+              icon: const Icon(Icons.delete),
+              color: Colors.grey[300]),
         ],
       ),
       body: Stack(
@@ -159,49 +151,53 @@ class _MyHomePageState extends State<HomePage> {
             right: 0,
             left: 0,
             child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(.03),
-                      offset: const Offset(0, -0.5),
-                      blurRadius: 4,
-                    )
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: SafeArea(
-                  child: Row(children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _itemController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          hintText: 'Insert a product',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(.03),
+                    offset: const Offset(0, -0.5),
+                    blurRadius: 4,
+                  )
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: SafeArea(
+                child: Row(children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _itemController,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                        hintText: 'Insert a product',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () {
-                        cubit.addProduct(product: Product(name: _itemController.text, indx: _items.length));
-                        _itemController.clear();
-                      },
-                      child: CircleAvatar(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: const Center(
-                            child: Icon(
+                  ),
+                  const SizedBox(width: 16),
+                  GestureDetector(
+                    onTap: () {
+                      cubit.addProduct(
+                          product: Product(
+                              name: _itemController.text, indx: _items.length));
+                      _itemController.clear();
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: const Center(
+                        child: Icon(
                           Icons.add,
                           color: Colors.white,
-                        )),
+                        ),
                       ),
-                    )
-                  ]),
-                )),
-          )
+                    ),
+                  )
+                ]),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -234,18 +230,45 @@ class _MyHomePageState extends State<HomePage> {
             elevation: 5.0,
             key: Key(index.toString()),
             child: Slidable(
+              
               key: Key(index.toString()),
               startActionPane: ActionPane(
                 motion: const BehindMotion(),
-                dismissible: DismissiblePane(onDismissed: () {}),
                 children: [
                   SlidableAction(
-                    onPressed: (context) =>
-                      cubit.removeProduct(product: products[index]),
-                      backgroundColor: const Color(0xFFFE4A49),
-                      foregroundColor: Colors.white,
-                      icon: Icons.delete,
-                      label: 'Delete',
+                    onPressed: (context) {
+
+                      List<Product> oldProductList = products;
+                      cubit.removeProduct(product: products[index]);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: RichText(
+                            text: TextSpan(
+                              children: <TextSpan>[
+                                const TextSpan(text: 'O item '),
+                                TextSpan(
+                                  text: oldProductList[index].name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const TextSpan(text: ' foi excluído'),
+                              ],
+                            ),
+                          ),
+                          action: SnackBarAction(
+                            label: 'Desfazer',
+                            onPressed: () => {
+                              cubit.restoreOldProductList(oldProductList),
+                            },
+                          ),
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    },
+                    backgroundColor: const Color(0xFFFE4A49),
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete,
+                    label: 'Delete',
                   ),
                 ],
               ),
@@ -262,7 +285,7 @@ class _MyHomePageState extends State<HomePage> {
                 ],
               ),
               child: GestureDetector(
-                key: Key(index.toString()),  
+                key: Key(index.toString()),
                 onTap: () {
                   _toggleItemBoughtStatus(index, products);
                 },
@@ -274,8 +297,9 @@ class _MyHomePageState extends State<HomePage> {
                     products[index].name,
                     style: TextStyle(
                       color: item.isBought == 1 ? Colors.red : null,
-                      decoration:
-                          item.isBought == 1 ? TextDecoration.lineThrough : null,
+                      decoration: item.isBought == 1
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                 ),

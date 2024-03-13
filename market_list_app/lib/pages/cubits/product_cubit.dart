@@ -70,9 +70,27 @@ class ProductCubit extends Cubit<ProductSate>{
   }
 
   Future<void> updateProductIndex({required Product product, required int newIndex}) async{
+    
     product.indx = newIndex;
 
     await DatabaseHelper.instance.updateItem(product);  
+    _products = await DatabaseHelper.instance.getAllProducts();
+
+    emit(LoadedProductState(_products));
+  }
+
+  Future<void> restoreOldProductList(List<Product> oldProductList) async{
+
+    emit(LoadingProductState());
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    clearList();
+
+    for(Product item in oldProductList){
+      await DatabaseHelper.instance.insert(item);
+    }
+
     _products = await DatabaseHelper.instance.getAllProducts();
 
     emit(LoadedProductState(_products));
