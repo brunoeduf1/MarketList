@@ -16,7 +16,6 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage> {
   late final List<Product> _items = [];
-
   late final ProductCubit cubit;
   final TextEditingController _itemController = TextEditingController();
 
@@ -30,7 +29,45 @@ class _MyHomePageState extends State<HomePage> {
             .showSnackBar(SnackBar(content: Text(state.message)));
       }
     });
+    _itemController.addListener(_processText);
   }
+
+  @override
+  void dispose() {
+    _itemController.removeListener(_processText);
+    _itemController.dispose();
+    super.dispose();
+  }
+
+  void _processText() {
+    List<String> rows = _itemController.text.split('\n');
+    List<String> processedRows = rows.map((row) {
+      if (row.startsWith('[')) {
+        int secondTwoPointsPosition = findSecondOccurrence(row, ':');
+        if (secondTwoPointsPosition != -1) {
+          return row.substring(secondTwoPointsPosition + 1).trim();
+        }
+      }
+      return row;
+    }).toList();
+
+    String filteredText = processedRows.join('\n');
+
+    final text = _itemController.text;
+
+    if (text != filteredText) {
+      _itemController
+        ..text = filteredText
+        ..selection = TextSelection.collapsed(offset: filteredText.length);
+    }
+  }
+
+  int findSecondOccurrence(String texto, String caractere) {
+    int primeiraOcorrencia = texto.indexOf(caractere);
+    if (primeiraOcorrencia == -1) return -1;
+
+    return texto.indexOf(caractere, primeiraOcorrencia + 1);
+}
 
   void _toggleItemBoughtStatus(int index, List<Product> products) {
     products[index].isBought == 1
@@ -129,22 +166,25 @@ class _MyHomePageState extends State<HomePage> {
       ),
       body: Stack(
         children: [
-          BlocBuilder(
-            bloc: cubit,
-            builder: (context, state) {
-              if (state is InitialProductState) {
-                cubit.getAllProducts();
-                return _buildProductList(context, cubit.products);
-              } else if (state is LoadingProductState) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (state is LoadedProductState) {
-                return _buildProductList(context, state.products);
-              } else {
-                return _buildProductList(context, cubit.products);
-              }
-            },
+          Container(
+            padding: const EdgeInsets.only(bottom: 0),
+            child: BlocBuilder(
+              bloc: cubit,
+              builder: (context, state) {
+                if (state is InitialProductState) {
+                  cubit.getAllProducts();
+                  return _buildProductList(context, cubit.products);
+                } else if (state is LoadingProductState) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is LoadedProductState) {
+                  return _buildProductList(context, state.products);
+                } else {
+                  return _buildProductList(context, cubit.products);
+                }
+              },
+            ),
           ),
           Positioned(
             bottom: 0,
@@ -169,7 +209,7 @@ class _MyHomePageState extends State<HomePage> {
                       controller: _itemController,
                       maxLines: null,
                       decoration: InputDecoration(
-                        hintText: 'Insert a product',
+                        hintText: 'Insira um ou mais produtos',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -205,7 +245,6 @@ class _MyHomePageState extends State<HomePage> {
 
   Widget _buildProductList(BuildContext context, List<Product> products) {
     return ReorderableListView(
-      padding: const EdgeInsets.only(bottom: 100.0),
       onReorder: (oldIndex, newIndex) {
         setState(() {
           if (newIndex > oldIndex) {
